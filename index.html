@@ -4,22 +4,26 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Minesweeper</title>
     <link rel="stylesheet" href="style.css">
     <script defer src="script.js"></script>
 </head>
 <body>
-    <div id="spilContainer">
-        <div id="spilHUD">
-            <!--<label for="spilTimer">Timer</label>-->
-            <p id="spilTimer">Timer</p>
-            <button type="button" id="btnTjek" onclick="SkiftKlikTilstand(0)">Tjek</button>
-            <img id="spillerStatus">
-            <button type="button" id="btnFlag" onclick="SkiftKlikTilstand(1)">Flag</button>
-            <p id="minerTilbage">Miner</p>
+    <div id="gameContainer">
+        <div id="gameInterface">
+            <div id="gameTimer">
+                <img class="DigiDigit" id="timerDigit100" src="files/digit0.png">
+                <img class="DigiDigit" id="timerDigit10" src="files/digit0.png">
+                <img class="DigiDigit" id="timerDigit1" src="files/digit0.png">
+            </div>
+            <img id="playerStatus">
+            <div id="bombsRemaining">
+                <img class="DigiDigit" id="bombsDigit100" src="files/digit0.png">
+                <img class="DigiDigit" id="bombsDigit10" src="files/digit0.png">
+                <img class="DigiDigit" id="bombsDigit1" src="files/digit0.png">
+            </div>
         </div>
-        
-        <div id="spilGrid">
+        <div id="gameGrid">
 
         </div>
     </div>

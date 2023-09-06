@@ -1,95 +1,106 @@
 body {
+    background-color: rgba(58, 110, 165, 1);
+}
+
+p {
+    margin: 0px;
+}
+
+#gameContainer {
+    position: relative;
+    top: 25vh;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 8px;
+
+    width: max-content;
+    height: max-content;
+    border: 4px outset white;
     background-color: rgba(224, 224, 224, 1);
 }
 
-#spilContainer {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: 65px 1fr;
-}
-
-#spilHUD {
-    grid-column: 1;
-    grid-row: 1;
-
+#gameInterface {
     position: relative;
-    top: 9vh;
-    margin-left: auto;
-    margin-right: auto;
+    height: fit-content;
 
-    border: 4px inset white;
+    display: flex;
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border: 3px inset white;
 
-    display: grid;
-    grid-template-rows: 65px;
-    grid-template-columns: 75px, 55px, 65px, 55px, 75px;
+    align-items: flex-start;
+    justify-content: space-between;
+
     background-color: rgba(192, 192, 192, 1);
 }
 
-#spilTimer {
-    grid-column: 1;
-    float: left;
+#gameTimer {
+    display: flex;
+    background-color: black;
+    border: 2px inset white;
+
+    margin-left: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    align-self: center;
     text-align: center;
-    align-self: center;
-    width: 65px;
 }
 
-#btnTjek {
-    grid-column: 2;
+#playerStatus {
     align-self: center;
-    width: 60px;
-    height: 50%;
+    padding: 1px;
+    border: 3px outset white;
 }
 
-#spillerStatus {
-    grid-column: 3;
+#bombsRemaining {
+    display: flex;
+    background-color: black;
+    border: 2px inset white;
+
+    margin-right: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+
     align-self: center;
-    width: 36px;
-
-    padding-left: 17px;
-    padding-right: 17px;
-}
-
-#btnFlag {
-    grid-column: 4;
-    align-self: center;
-    width: 60px;
-    height: 50%;
-}
-
-#minerTilbage {
-    grid-column: 5;
     text-align: center;
-    align-self: center;
-    width: 65px;
 }
 
-#spilGrid {
-    grid-column: 1;
-    grid-row: 2;
-
+#gameGrid {
     position: relative;
-    top: 10vh;
+    top: 8px;
+
+    height: fit-content;
+    width: fit-content;
+
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 6px;
 
     border: 4px inset white;
     background-color: rgba(192, 192, 192, 1);
     
     display: grid;
-    /*
-    grid-template-columns: repeat(10, 32px);
-    grid-template-rows: repeat(10, 32px);
-    */
 }
 
-.FeltKnap {
+.SquareButton {
+    display: block;
     width: 100%;
     height: 100%;
     padding: 0px !important;
     margin: 0px !important;
-    border: 4px outset white;
+    border: 0px outset white;
 
     background-repeat: no-repeat !important;
     background-position: center top 1px !important;
     background-origin: border-box !important;
+    background-size: contain !important;
+}
+
+.DigiDigit {
+    display: block;
+    margin-left: 2px;
+    margin-right: 2px;
 }

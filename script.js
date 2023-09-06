@@ -1,3 +1,14 @@
+window.oncontextmenu = function () {
+    return false;     // cancel default menu
+}
+
+const GameBoard = [];
+const gridX = 10; //default 10
+const gridY = 10; //default 10
+const numberOfBombs = 18; //default 18
+
+const squareSize = 32;
+
 const colourDarkGrey = "rgba(135, 136, 143, 1)";
 const colourLightGrey = "rgba(192, 192, 192, 1)";
 const colourWhite = "rgba(255, 255, 255, 1)";
@@ -5,143 +16,131 @@ const colourDefBtn = "rgba(233, 233, 237, 1)";
 const colourGreen = "rgba(80, 140, 80, 1)";
 const colourRed = "rgba(255, 0, 0, 1)";
 
-const Spilleplade = [];
-const gridX = 10;
-const gridY = 10;
-const antalBomber = 18;
-const flagPath = "/files/flag32px.png";
-const flagAltPath = "/files/flagalt32px.png";
-const minePath = "/files/mine32px.png";
-const guessedMinePath = "/files/guessedmine32px.png";
-const facePath = "/files/face36px.png";
-const faceWinPath = "/files/win36px.png";
-const faceLosePath = "/files/lose36px.png";
-const onePath = "/files/one32px.png";
-const twoPath = "/files/two32px.png";
-const threePath = "/files/three32px.png";
-const fourPath = "/files/four32px.png";
-const fivePath = "/files/five32px.png";
-const sixPath = "/files/six32px.png";
-const sevenPath = "/files/seven32px.png";
-const eightPath = "/files/eight32px.png";
+const flagPath = "files/flag32px.png";
+const flagAltPath = "files/flagalt32px.png";
+const minePath = "files/mine32px.png";
+const guessedMinePath = "files/guessedmine32px.png";
+const facePath = "files/face36px.png";
+const faceWinPath = "files/win36px.png";
+const faceLosePath = "files/lose36px.png";
+
+const numberPath = [
+    "files/one32px.png",
+    "files/two32px.png",
+    "files/three32px.png",
+    "files/four32px.png",
+    "files/five32px.png",
+    "files/six32px.png",
+    "files/seven32px.png",
+    "files/eight32px.png"
+];
+
+const digitPath = [
+    "files/digit0.png",
+    "files/digit1.png",
+    "files/digit2.png",
+    "files/digit3.png",
+    "files/digit4.png",
+    "files/digit5.png",
+    "files/digit6.png",
+    "files/digit7.png",
+    "files/digit8.png",
+    "files/digit9.png"
+];
 
 let startX = 0;
 let startY = 0;
-let spilIGang = true;
-let bomberGenereret = false;
-let bombeFlag = 0;
-let klikTilstand;
+let gameRunning = true;
+let bombsGenerated = false;
+let bombFlags = 0;
 
-let startTidspunkt = 0;
-let tagTid = false;
-let minutter = 0;
-let sekunder = 0;
+let startingTime = 0;
+let measureTime = false;
+let seconds = 0;
+let timerHundreds = 0;
+let timerTens = 0;
+let timerOnes = 0;
+let bombsHundreds = 0;
+let bombsTens = 0;
+let bombsOnes = 0;
 
-class SpilFelt {
-    Bombe = false;
-    Flag = false;
-    Åbnet = false;
-    NaboBomber = 0;
+class BoardSquare {
+    HasBomb = false;
+    IsFlagged = false;
+    IsOpened = false;
+    NoOfNeighbouringBombs = 0;
     X;
     Y;
+    IsHeld = false;
+    IsLongClicked = false;
 
     constructor (x, y) {
         this.X = x;
         this.Y = y;
     }
 
-    FindNaboer() {
-        let tjekN = true;
-        let tjekNØ = true;
-        let tjekØ = true;
-        let tjekSØ = true;
-        let tjekS = true;
-        let tjekSV = true;
-        let tjekV = true;
-        let tjekNV = true;
+    FindNeighbours() {
+        let checkN = true;
+        let checkNE = true;
+        let checkE = true;
+        let checkSE = true;
+        let checkS = true;
+        let checkSW = true;
+        let checkW = true;
+        let checkNW = true;
 
         if (this.X === 0) {
-            tjekSV = false;
-            tjekV = false;
-            tjekNV = false;
+            checkSW = false;
+            checkW = false;
+            checkNW = false;
         }
 
         if (this.X === gridX - 1) {
-            tjekNØ = false;
-            tjekØ = false;
-            tjekSØ = false;
+            checkNE = false;
+            checkE = false;
+            checkSE = false;
         }
 
         if (this.Y === 0) {
-            tjekN = false;
-            tjekNØ = false;
-            tjekNV = false;
+            checkN = false;
+            checkNE = false;
+            checkNW = false;
         }
 
         if (this.Y === gridY - 1) {
-            tjekSØ = false;
-            tjekS = false;
-            tjekSV = false;
+            checkSE = false;
+            checkS = false;
+            checkSW = false;
         }      
 
-        if (tjekN)
-            this.TjekNabo(Spilleplade[this.X][this.Y-1]);
-        if (tjekNØ)
-            this.TjekNabo(Spilleplade[this.X+1][this.Y-1]);
-        if (tjekØ)
-            this.TjekNabo(Spilleplade[this.X+1][this.Y]);
-        if (tjekSØ)
-            this.TjekNabo(Spilleplade[this.X+1][this.Y+1]);
-        if (tjekS)
-            this.TjekNabo(Spilleplade[this.X][this.Y+1]);
-        if (tjekSV)
-            this.TjekNabo(Spilleplade[this.X-1][this.Y+1]);
-        if (tjekV)
-            this.TjekNabo(Spilleplade[this.X-1][this.Y]);
-        if (tjekNV)
-            this.TjekNabo(Spilleplade[this.X-1][this.Y-1]);
+        if (checkN)
+            this.CheckNeighbour(GameBoard[this.X][this.Y-1]);
+        if (checkNE)
+            this.CheckNeighbour(GameBoard[this.X+1][this.Y-1]);
+        if (checkE)
+            this.CheckNeighbour(GameBoard[this.X+1][this.Y]);
+        if (checkSE)
+            this.CheckNeighbour(GameBoard[this.X+1][this.Y+1]);
+        if (checkS)
+            this.CheckNeighbour(GameBoard[this.X][this.Y+1]);
+        if (checkSW)
+            this.CheckNeighbour(GameBoard[this.X-1][this.Y+1]);
+        if (checkW)
+            this.CheckNeighbour(GameBoard[this.X-1][this.Y]);
+        if (checkNW)
+            this.CheckNeighbour(GameBoard[this.X-1][this.Y-1]);
 
-        document.getElementById("knap" + this.X + "-" + this.Y).style.background = colourLightGrey;
-        document.getElementById("knap" + this.X + "-" + this.Y).style.border = ("1px solid") + " " + colourDarkGrey;
-        let talBil = "";
-        if (this.NaboBomber !== 0) {
-            switch(this.NaboBomber) {
-                case 1:
-                    talBil = onePath;
-                    break;
-                case 2:
-                    talBil = twoPath;
-                    break;
-                case 3:
-                    talBil = threePath;
-                    break;
-                case 4:
-                    talBil = fourPath;
-                    break;
-                case 5:
-                    talBil = fivePath;
-                    break;
-                case 6:
-                    talBil = sixPath;
-                    break;
-                case 7:
-                    talBil = sevenPath;
-                    break;
-                case 8:
-                    talBil = eightPath;
-                    break;
-                default: 
-                    document.getElementById("knap" + this.X + "-" + this.Y).innerText = this.NaboBomber;
-                    break;
-            }
-            document.getElementById("knap" + this.X + "-" + this.Y).style.backgroundImage = `url(".${talBil}")`;
+        document.getElementById("button" + this.X + "-" + this.Y).style.background = colourLightGrey;
+        document.getElementById("button" + this.X + "-" + this.Y).style.border = ("1px solid") + " " + colourDarkGrey;
+        if (this.NoOfNeighbouringBombs !== 0) {
+            document.getElementById("button" + this.X + "-" + this.Y).style.backgroundImage = `url("${numberPath[this.NoOfNeighbouringBombs - 1]}")`;
         }
-        this.Åbnet = true;
+        this.IsOpened = true;
     }
 
-    TjekNabo(nabo) {
-        if (nabo.Bombe === true) {
-            this.NaboBomber++;
+    CheckNeighbour(neighbour) {
+        if (neighbour.HasBomb === true) {
+            this.NoOfNeighbouringBombs++;
         }
     }
 }
@@ -149,69 +148,114 @@ class SpilFelt {
 setInterval(Timer, 1000);
 
 function Timer() {
-    if (tagTid) {
-        if (sekunder < 59) {
-            sekunder++;
-        }
-        else {
-            minutter++;
-            sekunder = 0;
-        }
-    }
-    if (sekunder < 10)
-        document.getElementById("spilTimer").innerText = `${minutter}:0${sekunder}`;
-    else
-        document.getElementById("spilTimer").innerText = `${minutter}:${sekunder}`;
-}
+    if (measureTime) {
+        if (seconds < 999) {
+            seconds++;
+            let digits = seconds.toString().split('');
+            let realDigits = digits.map(Number);
 
-function OpdaterBombeTæller() {
-    document.getElementById("minerTilbage").innerText = antalBomber - bombeFlag;
-}
-
-function StartSpil() {
-    LavGitter();
-    SkiftKlikTilstand(0);
-    SkiftBilledeTilstand(0);
-}
-
-function LavGitter() {
-    document.getElementById("spilGrid").style.gridTemplateColumns = `repeat(${gridY}, 32px)`;
-    document.getElementById("spilGrid").style.gridTemplateRows = `repeat(${gridX}, 32px)`;
-    for (let y = 0; y < gridY; y++) {
-        let pladeY = [];
-        for (let x = 0; x < gridX; x++) {
-            let spilFelt = document.createElement("div");
-            spilFelt.classList.add("Felt");
-            spilFelt.id = "felt" + x + "-" + y;
-            spilFelt.style.gridRow = y+1;
-            spilFelt.style.gridColumn = x+1;
-
-            let spilFeltKnap = document.createElement("button");
-            spilFeltKnap.classList.add("FeltKnap");
-            spilFeltKnap.type = "button";
-            spilFeltKnap.id = "knap" + x + "-" + y;
-            spilFeltKnap.style.backgroundColor = colourLightGrey;
-
-            spilFeltKnap.onclick = function() {
-                KlikFelt(x, y);
+            if (realDigits[2] != null) {
+                document.getElementById("timerDigit100").src = digitPath[realDigits[0]];
+                document.getElementById("timerDigit10").src = digitPath[realDigits[1]];
+                document.getElementById("timerDigit1").src = digitPath[realDigits[2]];
             }
-            spilFelt.appendChild(spilFeltKnap);
 
-            document.getElementById("spilGrid").append(spilFelt);
+            else if (realDigits[1] != null) {
+                document.getElementById("timerDigit10").src = digitPath[realDigits[0]];
+                document.getElementById("timerDigit1").src = digitPath[realDigits[1]];
+            }
 
-            let pladeX = new SpilFelt(y, x);
-            pladeY.push(pladeX);
+            else {
+                document.getElementById("timerDigit1").src = digitPath[realDigits[0]];
+            }
         }
-        Spilleplade.push(pladeY);
     }
 }
 
-function GenererBomber() {
+function UpdateBombCounter() {
+    let bombsLeft = numberOfBombs - bombFlags;
+
+    let digits = bombsLeft.toString().split('');
+    let realDigits = digits.map(Number);
+
+    if (realDigits[2] != null) {
+        document.getElementById("bombsDigit100").src = digitPath[realDigits[0]];
+        document.getElementById("bombsDigit10").src = digitPath[realDigits[1]];
+        document.getElementById("bombsDigit1").src = digitPath[realDigits[2]];
+    }
+
+    else if (realDigits[1] != null) {
+        if (bombsLeft === 99) {
+            document.getElementById("bombsDigit100").src = digitPath[0];
+        }
+        document.getElementById("bombsDigit10").src = digitPath[realDigits[0]];
+        document.getElementById("bombsDigit1").src = digitPath[realDigits[1]];
+    }
+
+    else {
+        if (bombsLeft === 9) {
+            document.getElementById("bombsDigit10").src = digitPath[0];
+        }
+        document.getElementById("bombsDigit1").src = digitPath[realDigits[0]];
+    }
+}
+
+function StartGame() {
+    CreateGrid();
+    ChangePictureState(0);
+}
+
+function CreateGrid() {
+    document.getElementById("gameGrid").style.gridTemplateColumns = `repeat(${gridY}, ${squareSize}px)`;
+    document.getElementById("gameGrid").style.gridTemplateRows = `repeat(${gridX}, ${squareSize}px)`;
+    for (let y = 0; y < gridY; y++) {
+        let boardY = [];
+
+        for (let x = 0; x < gridX; x++) {
+            let boardSquare = document.createElement("div");
+            boardSquare.classList.add("Square");
+            boardSquare.id = "square" + x + "-" + y;
+            boardSquare.style.gridRow = y+1;
+            boardSquare.style.gridColumn = x+1;
+
+            let boardSquareButton = document.createElement("button");
+            boardSquareButton.classList.add("SquareButton");
+            boardSquareButton.type = "button";
+            boardSquareButton.id = "button" + x + "-" + y;
+            boardSquareButton.style.borderWidth = (squareSize / 8) + "px";
+            boardSquareButton.style.backgroundColor = colourLightGrey;
+
+            boardSquareButton.onmousedown = function(e) {
+                HoldSquare(x, y);
+            }
+            boardSquareButton.onmouseup = function(e) {
+                ClickSquare(x, y, e.button);
+            }
+			
+            boardSquare.appendChild(boardSquareButton);
+
+            document.getElementById("gameGrid").append(boardSquare);
+
+            let boardX = new BoardSquare(y, x);
+            boardY.push(boardX);
+        }
+        GameBoard.push(boardY);
+    }
+
+    document.getElementById("gameInterface").style.width = (squareSize * gridX) + "px";
+    document.getElementById("playerStatus").style.width = (squareSize + 4) + "px";
+    
+    var digits = document.getElementsByClassName("DigiDigit");
+    for (let index = 0; index < digits.length; index++) {
+        digits[index].style.height = (squareSize + 4) + "px";
+    }
+}
+
+function GenerateBombs() {
     let bomberXY = new Set();
-    let bomber = 0;
     let newNum = 0;
     
-    for (let bomber = 0; bomber < antalBomber;) {
+    for (let bombs = 0; bombs < numberOfBombs;) {
         let repeat = true;
         while (repeat) {
             newNum = Math.floor(Math.random() * ((gridX * gridY) - 1) + 0);
@@ -220,142 +264,160 @@ function GenererBomber() {
                 let y = Math.floor(newNum / gridY);
                 if (x != startX || y != startY) {
                     bomberXY.add(newNum);
-                    PlacerBombe(x, y);
+                    PlaceBomb(x, y);
                     repeat = false;
                 }
             }
         }
-        bomber++;
+        bombs++;
     }
 }
 
-function PlacerBombe(x, y) {
-    Spilleplade[x][y].Bombe = true;
+function PlaceBomb(x, y) {
+    GameBoard[x][y].HasBomb = true;
 }
 
-function KlikFelt(x, y) {
-    if (spilIGang) {
-        if (klikTilstand === 0) {
-            if (!bomberGenereret) {
-                startX = x;
-                startY = y;
-                GenererBomber();
-                bomberGenereret = true;
-                OpdaterBombeTæller();
-                tagTid = true;
-            }
-
-            if (!Spilleplade[x][y].Bombe && !Spilleplade[x][y].Åbnet && !Spilleplade[x][y].Flag) {
-                Spilleplade[x][y].FindNaboer();
-                if (antalBomber - bombeFlag === 0) {
-                    TjekBoard();
+function HoldSquare(x, y) {
+    if (gameRunning) {
+        let twentieths = 0;
+        GameBoard[x][y].IsHeld = true;
+    
+        let holdTimer = setInterval(function() {
+            if (GameBoard[x][y].IsHeld && twentieths < 20) {
+                twentieths++;
+    
+                if (twentieths >= 20) {
+                    clearInterval(holdTimer);
+                    GameBoard[x][y].IsLongClicked = true;
+                    FlagSquare(x, y);
                 }
             }
-            else if (Spilleplade[x][y].Bombe && !Spilleplade[x][y].Flag) {
-                RamBombe();
-                document.getElementById("knap" + x + "-" + y).style.backgroundColor = colourRed;
-                document.getElementById("knap" + x + "-" + y).style.backgroundImage = `url(".${minePath}")`;
-                document.getElementById("knap" + x + "-" + y).style.border = ("1px solid") + " " + colourDarkGrey;
-                //alert("Bombe!");
-            }
-        }
-    
-        else if (klikTilstand === 1) {
-            if (!Spilleplade[x][y].Åbnet && !Spilleplade[x][y].Flag) { 
-                document.getElementById("knap" + x + "-" + y).style.backgroundImage = `url(".${flagAltPath}")`;
-                Spilleplade[x][y].Flag = true;
-                bombeFlag++;
-                if (antalBomber - bombeFlag === 0) {
-                    TjekBoard();
-                }
-            }
-    
-            else if (!Spilleplade[x][y].Åbnet && Spilleplade[x][y].Flag) {
-                document.getElementById("knap" + x + "-" + y).style.backgroundImage = "";
-                Spilleplade[x][y].Flag = false;
-                bombeFlag--;
-            }
-            OpdaterBombeTæller();
-        }
+        }, 50);
     }
 }
 
-function TjekBoard() {
-    let factTjek = new Set();
-    let counter = 0;
-    Spilleplade.forEach(række => {
-        række.forEach(felt => {
-            if (felt.Bombe && !felt.Flag) {
-                factTjek.add(1);
+function ClickSquare(x, y, mbtn) {
+    if (gameRunning) {
+        GameBoard[x][y].IsHeld = false;
+        if (!GameBoard[x][y].IsLongClicked) {
+            if (mbtn === 0) {
+                RevealSquare(x, y);
             }
-            else if (!felt.Bombe && felt.Flag) {
-                factTjek.add(1);
-            }
-            else if (felt.Bombe && felt.Flag) {
-                counter++;
-            }    
-        });
-    });
-
-    if (!factTjek.has(1) && counter === antalBomber) {
-        VindSpil();
-    }
-    factTjek.clear();
-}
-
-function SkiftKlikTilstand(tjek) {
-    let btnTjek = document.getElementById("btnTjek");
-    let btnFlag = document.getElementById("btnFlag");
-
-    if (tjek === 0 && klikTilstand !== 0) {
-        klikTilstand = 0;
-        btnTjek.style.backgroundColor = colourGreen;
-        btnFlag.style.backgroundColor = colourDefBtn;
-    }
         
-    else if (tjek === 1 && klikTilstand !== 1) {
-        klikTilstand = 1;
-        btnTjek.style.backgroundColor = colourDefBtn;
-        btnFlag.style.backgroundColor = colourGreen;
-    }
-}
-
-function SkiftBilledeTilstand(tilstand) {
-    let billede = document.getElementById("spillerStatus");
-    if (tilstand === 0) {
-        billede.src = facePath;
-    }
-    else if (tilstand === 1) {
-        billede.src = faceLosePath;
-    }
-    else if (tilstand === 2) {
-        billede.src = faceWinPath;
-    }
-}
-
-function RamBombe() {
-    tagTid = false;
-    spilIGang = false;
-    SkiftBilledeTilstand(1);
-
-    Spilleplade.forEach(række => {
-        række.forEach(felt => {
-            if (felt.Bombe && !felt.Flag) {
-                document.getElementById("knap" + felt.X + "-" + felt.Y).style.backgroundImage = `url(".${minePath}")`;
-                document.getElementById("knap" + felt.X + "-" + felt.Y).style.border = ("1px solid") + " " + colourDarkGrey;
+            else if (mbtn === 2) {
+                FlagSquare(x, y);
             }
-            else if (felt.Bombe && felt.Flag) {
-                document.getElementById("knap" + felt.X + "-" + felt.Y).style.backgroundImage = `url(".${guessedMinePath}")`;
-                document.getElementById("knap" + felt.X + "-" + felt.Y).style.border = ("1px solid") + " " + colourDarkGrey;
+        }
+    }
+}
+
+function RevealSquare(x, y) {
+    if (!bombsGenerated) {
+        startX = x;
+        startY = y;
+        GenerateBombs();
+        bombsGenerated = true;
+        UpdateBombCounter();
+        measureTime = true;
+    }
+
+    if (!GameBoard[x][y].HasBomb && !GameBoard[x][y].IsOpened && !GameBoard[x][y].IsFlagged) {
+        GameBoard[x][y].FindNeighbours();
+        if (numberOfBombs - bombFlags === 0) {
+            CheckBoard();
+        }
+    }
+    else if (GameBoard[x][y].HasBomb && !GameBoard[x][y].IsFlagged) {
+        HitBomb();
+        document.getElementById("button" + x + "-" + y).style.backgroundColor = colourRed;
+        document.getElementById("button" + x + "-" + y).style.backgroundImage = `url("${minePath}")`;
+        document.getElementById("button" + x + "-" + y).style.border = ("1px solid") + " " + colourDarkGrey;
+    }
+}
+
+function FlagSquare(x, y) {
+    if (!GameBoard[x][y].IsOpened && !GameBoard[x][y].IsFlagged) { 
+        document.getElementById("button" + x + "-" + y).style.backgroundImage = `url("${flagAltPath}")`;
+        GameBoard[x][y].IsFlagged = true;
+        bombFlags++;
+        if (numberOfBombs - bombFlags === 0) {
+            CheckBoard();
+        }
+    }
+
+    else if (!GameBoard[x][y].IsOpened && GameBoard[x][y].IsFlagged) {
+        document.getElementById("button" + x + "-" + y).style.backgroundImage = "";
+        GameBoard[x][y].IsFlagged = false;
+        bombFlags--;
+    }
+    UpdateBombCounter();
+}
+
+function CheckBoard() {
+    let counter = 0;
+    let canWin = true;
+
+    GameBoard.forEach(row => {
+        if (canWin) {
+            row.forEach(square => {
+                if (!square.IsOpened && !square.HasBomb) {
+                    canWin = false;
+                }
+                else if (square.HasBomb && !square.IsFlagged) {
+                    canWin = false;
+                }
+                else if (!square.HasBomb && square.IsFlagged) {
+                    canWin = false;
+                }
+                else if (square.HasBomb && square.IsFlagged) {
+                    counter++;
+                }    
+            });
+        }
+    });
+
+    if (canWin && counter === numberOfBombs) {
+        WinGame();
+    }
+    factCheck.clear();
+}
+
+function ChangePictureState(state) {
+    let picture = document.getElementById("playerStatus");
+    if (state === 0) {
+        picture.src = facePath;
+    }
+    else if (state === 1) {
+        picture.src = faceLosePath;
+    }
+    else if (state === 2) {
+        picture.src = faceWinPath;
+    }
+}
+
+function HitBomb() {
+    measureTime = false;
+    gameRunning = false;
+    ChangePictureState(1);
+
+    GameBoard.forEach(row => {
+        row.forEach(square => {
+            if (square.HasBomb && !square.IsFlagged) {
+                document.getElementById("button" + square.X + "-" + square.Y).style.backgroundImage = `url("${minePath}")`;
+                document.getElementById("button" + square.X + "-" + square.Y).style.border = ("1px solid") + " " + colourDarkGrey;
+            }
+            else if (square.HasBomb && square.IsFlagged) {
+                document.getElementById("button" + square.X + "-" + square.Y).style.backgroundImage = `url("${guessedMinePath}")`;
+                document.getElementById("button" + square.X + "-" + square.Y).style.border = ("1px solid") + " " + colourDarkGrey;
             }    
         });
     });
 }
 
-function VindSpil() {
-    tagTid = false;
-    spilIGang = false;
-    SkiftBilledeTilstand(2);
+function WinGame() {
+    measureTime = false;
+    gameRunning = false;
+    ChangePictureState(2);
 }
 
-window.onload = StartSpil;
+window.onload = StartGame;
